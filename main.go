@@ -13,7 +13,7 @@ import . "./definitions"
 var mySnake SnakeConfig = SnakeConfig { 
 	Apiversion : "1",
 	Author : "wail",
-	Color :"#D61EBF",
+	Color :"#FFFFFF",
 	Head : "dead",
 	Tail : "bolt",
 }
@@ -42,7 +42,7 @@ func start(w http.ResponseWriter, r *http.Request){
 
 	InitGameState(currentGame, &gameState)
 
-	fmt.Println("after init food chosen ", gameState.FoodTarget)
+	// fmt.Println("after init food chosen ", gameState.FoodTarget)
 	
 
 }

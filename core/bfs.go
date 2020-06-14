@@ -39,7 +39,7 @@ func GetBestMoveToFood(start Point, b Board, you BattleSnake, g *GameState) stri
 
 	visited[start] = true
 	queue.Push(q, start)
-	fmt.Println("starting bfs ", start)
+	// fmt.Println("starting bfs ", start)
 
 	for ; !queue.Empty(q) ; {
 		var currentVertex, _ = queue.Pop(q)
@@ -47,7 +47,7 @@ func GetBestMoveToFood(start Point, b Board, you BattleSnake, g *GameState) stri
 		// fmt.Println("currently visiting ", currentVertex)
 
 		if currentVertex == g.FoodTarget {
-			fmt.Println("food target reached ! ", currentVertex, g.FoodTarget)
+			//fmt.Println("food target reached ! ", currentVertex, g.FoodTarget)
 			break
 		}
 		//visit neighbors
@@ -77,7 +77,7 @@ func GetBestMoveToFood(start Point, b Board, you BattleSnake, g *GameState) stri
 		
 
 	}
-	fmt.Println("parent map is", parent)
+	// fmt.Println("parent map is", parent)
 
 	//Find the path from food to start
 	move := findPath(parent, start, g.FoodTarget)
@@ -118,7 +118,7 @@ func Init(b Board) (Visited, Parent) {
 
 
 func findPath(path Parent, start Point, goal Point) Point {
-	fmt.Println("trying to find path from ", start)
+	// fmt.Println("trying to find path from ", start)
 	move := goal
 
 	for ; start != path[move] ; {
@@ -129,7 +129,7 @@ func findPath(path Parent, start Point, goal Point) Point {
 	} 
 	
 	
-	fmt.Println("best move is ", move)
+	// fmt.Println("best move is ", move)
 	return move
 	
 	

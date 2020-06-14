@@ -1,6 +1,5 @@
 package core
 import . "../definitions"
-import "fmt"
 //some essential data structures representing the game state
 
 type GameState struct {
@@ -22,7 +21,7 @@ func InitGameState(m MainRequest, g *GameState) {
 	g.Height = m.Board.Height
 
 	ChooseClosestFoodTarget(m.Board, m.You.Head, &g.FoodTarget)
-	fmt.Println("food chosen init ", g.FoodTarget)
+	// fmt.Println("food chosen init ", g.FoodTarget)
 
 }
 //This function will be called for every move request
