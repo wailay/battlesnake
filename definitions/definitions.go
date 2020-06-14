@@ -1,4 +1,4 @@
-package utils
+package definitions
 
 type Game struct {
 	Id string `json:"id"`

@@ -1,7 +1,9 @@
 package queue
 import "container/list"
-import . "../utils"
 import "errors"
+import . "../definitions"
+//Temporary to avoid import cycle
+
 func New() *list.List {
 	l := list.New()
 	return l

@@ -7,18 +7,19 @@ import (
 	"encoding/json"
 	
 )
-import . "./utils"
 import . "./core"
+import . "./definitions"
 
 var mySnake SnakeConfig = SnakeConfig { 
 	Apiversion : "1",
 	Author : "wail",
-	Color :"#E80978",
+	Color :"#D61EBF",
 	Head : "dead",
 	Tail : "bolt",
 }
 
 var currentGame MainRequest
+var gameState GameState
 
 func entry(w http.ResponseWriter, r *http.Request){
 	snakeJSON, _ := json.Marshal(&mySnake)
@@ -30,6 +31,7 @@ func entry(w http.ResponseWriter, r *http.Request){
 }
 
 func start(w http.ResponseWriter, r *http.Request){
+	fmt.Printf("%s %s %s\n", r.Proto, r.Method, r.URL.Path)
 	
 	err := json.NewDecoder(r.Body).Decode(&currentGame)
 	
@@ -38,13 +40,17 @@ func start(w http.ResponseWriter, r *http.Request){
 		return 
 	}
 
-	fmt.Printf("%s %s %s\n", r.Proto, r.Method, r.URL.Path)
+	InitGameState(currentGame, &gameState)
+
+	fmt.Println("after init food chosen ", gameState.FoodTarget)
 	
 
 }
 
 func move(w http.ResponseWriter, r *http.Request) {
 
+	fmt.Printf("%s %s %s\n", r.Proto, r.Method, r.URL.Path)
+
 	err := json.NewDecoder(r.Body).Decode(&currentGame)
 	
 	if err != nil { 
@@ -52,8 +58,8 @@ func move(w http.ResponseWriter, r *http.Request) {
 		return 
 	}
 
-
-	nextMove := GetBestMoveToFood(currentGame.You, currentGame.Board)
+	UpdateGameState(currentGame, &gameState)
+	nextMove := GetBestMoveToFood(currentGame.You.Head, currentGame.Board, currentGame.You, &gameState)
 
 	var move Move
 
@@ -63,7 +69,6 @@ func move(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("sending move ", move)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(moveJSON)
-	fmt.Printf("%s %s %s\n", r.Proto, r.Method, r.URL.Path)
 
 }
 

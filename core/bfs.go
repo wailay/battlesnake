@@ -1,7 +1,7 @@
 package core
 import "fmt"
 import queue "../queue"
-import . "../utils"
+import . "../definitions"
 
 const MAX_INT int = (1 << 32) - 1 
 
@@ -9,27 +9,34 @@ type Visited map[Point]bool
 type Distance map[Point]int
 type Parent map[Point]Point
 
-var foodTarget Point
-
-type EnemySnakes map[Point]struct{} //this implements a set , keep the struct value empty
-var empty struct {}
-
 var dx = [4]int{0 , 1, 0,-1}
 var dy = [4]int{-1, 0, 1, 0}
 
 
-func GetBestMoveToFood(you BattleSnake, b Board) string {
-	
-	width, height := b.Width, b.Height
-	visited, parent := Init(b)
-	enemySnakes := updateEnemySnakes(b.Snakes)
+//Current problems/edge case
+/*
+1- When the food target is unreachable - that means the snake body probably is around the target - 
+since bfs cant find a path to the target it will return {-1 -1} 
+solution thoughts : when a food is unreachable follow tail instead ???
 
-	chooseTargetFood(b.Food, &foodTarget)
+2 - the snakes targets a food that is reachable but lead to a dead end 
+solution thougths : run a dfs on the sub graph that surround the food - if the number of vertices is less than the body of the snake, 
+it is highly probable that the snake cant escape. then target a new food. This solution might be expensive cant run dfs on every move move request
+
+3 - 
+*/
+func GetBestMoveToFood(start Point, b Board, you BattleSnake, g *GameState) string {
 	
-	fmt.Println("food chosen ", foodTarget)
+	
+	visited, parent := Init(b)
+
+	ChooseClosestFoodTarget(b, you.Head, &g.FoodTarget)
+
+	fmt.Println("food chosen ", g.FoodTarget)
+	
 	q := queue.New()
 
-	start := you.Head
+
 	visited[start] = true
 	queue.Push(q, start)
 	fmt.Println("starting bfs ", start)
@@ -39,8 +46,8 @@ func GetBestMoveToFood(you BattleSnake, b Board) string {
 
 		// fmt.Println("currently visiting ", currentVertex)
 
-		if currentVertex == foodTarget {
-			fmt.Println("food target reached ! ", currentVertex, foodTarget)
+		if currentVertex == g.FoodTarget {
+			fmt.Println("food target reached ! ", currentVertex, g.FoodTarget)
 			break
 		}
 		//visit neighbors
@@ -53,9 +60,9 @@ func GetBestMoveToFood(you BattleSnake, b Board) string {
 			
 			//skip vertex that are out of bounds
 			if neighborVertex.X < 0 || neighborVertex.Y < 0 { continue }
-			if neighborVertex.X >= width || neighborVertex.Y >= height { continue }
+			if neighborVertex.X >= g.Width || neighborVertex.Y >= g.Height { continue }
 			//skip snakes body
-			if _ , in := enemySnakes[neighborVertex]; in { continue }
+			if _ , in := g.EnemySnakes[neighborVertex]; in { continue }
 
 			// fmt.Println("neigh", neighborVertex)
 			if !visited[neighborVertex] {
@@ -73,12 +80,18 @@ func GetBestMoveToFood(you BattleSnake, b Board) string {
 	fmt.Println("parent map is", parent)
 
 	//Find the path from food to start
-	move := findPath(parent, start, foodTarget)
+	move := findPath(parent, start, g.FoodTarget)
 	
+	//if the food is unreachable
+	noPath := Point{-1, -1}
+	if noPath == move { 
+		//tell the snake to target its tail
+		GetBestMoveToFood(g.Tail, b, you, g)
+	}
 	
-	
+	moveString := pointToStringDirection(start, move)
 	//TODO fix the logic 
-	return move
+	return moveString
 }
 
 //Initiliase some data structures needed for bfs algorithm
@@ -102,18 +115,9 @@ func Init(b Board) (Visited, Parent) {
 	
 }
 
-func updateEnemySnakes(snakes []BattleSnake) EnemySnakes {
-	enemySnakes := make(EnemySnakes)
-	for _, snake :=  range snakes {
-		for _, body := range snake.Body {
-			enemySnakes[body] = empty
-		}
-	}
 
-	return enemySnakes
-}
 
-func findPath(path Parent, start Point, goal Point) string {
+func findPath(path Parent, start Point, goal Point) Point {
 	fmt.Println("trying to find path from ", start)
 	move := goal
 
@@ -126,7 +130,7 @@ func findPath(path Parent, start Point, goal Point) string {
 	
 	
 	fmt.Println("best move is ", move)
-	return pointToStringDirection(start, move)
+	return move
 	
 	
 	
@@ -142,23 +146,4 @@ func pointToStringDirection(parent Point, move Point) string {
 	if y > 0 { return "up"}
 
 	return "up" //should not reach here / TODO - refactor ? bad code ?
-}
-
-//this function choose a food to target if none targeted in the moment 
-//and keep targetting the same food until gone.
-//TODO Strategies : target food with least enemy around
-func chooseTargetFood(foods []Point, target *Point) {
-	if target == nil {
-		*target = foods[0]
-		return 
-	}
-
-	for _, food := range foods {
-
-		if food == *target { break }
-		*target = food
-	}
-	return 
-	
-	
 }
