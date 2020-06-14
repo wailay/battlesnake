@@ -12,8 +12,8 @@ import . "./definitions"
 
 var mySnake SnakeConfig = SnakeConfig { 
 	Apiversion : "1",
-	Author : "wail",
-	Color :"#FFFFFF",
+	Author : "bigboi",
+	Color :"#000000",
 	Head : "dead",
 	Tail : "bolt",
 }
