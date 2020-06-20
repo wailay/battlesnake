@@ -25,13 +25,14 @@ it is highly probable that the snake cant escape. then target a new food. This s
 
 3 - 
 */
-func GetBestMoveToFood(start Point, b Board, you BattleSnake, g *GameState) string {
+func GetBestMoveToFood(start Point, b Board, you BattleSnake, g *GameState, targetTail bool) string {
 	
 	
 	visited, parent := Init(b)
 
-	ChooseClosestFoodTarget(b, you.Head, &g.FoodTarget)
-
+	if !targetTail {
+		ChooseClosestFoodTarget(b, you.Head, &g.FoodTarget)
+	}
 	fmt.Println("food chosen ", g.FoodTarget)
 	
 	q := queue.New()
@@ -77,8 +78,8 @@ func GetBestMoveToFood(start Point, b Board, you BattleSnake, g *GameState) stri
 		
 
 	}
-	// fmt.Println("parent map is", parent)
-
+	
+	
 	//Find the path from food to start
 	move := findPath(parent, start, g.FoodTarget)
 	
@@ -86,7 +87,7 @@ func GetBestMoveToFood(start Point, b Board, you BattleSnake, g *GameState) stri
 	noPath := Point{-1, -1}
 	if noPath == move { 
 		//tell the snake to target its tail
-		GetBestMoveToFood(g.Tail, b, you, g)
+		return "nopath"
 	}
 	
 	moveString := pointToStringDirection(start, move)

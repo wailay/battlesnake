@@ -59,8 +59,14 @@ func move(w http.ResponseWriter, r *http.Request) {
 	}
 
 	UpdateGameState(currentGame, &gameState)
-	nextMove := GetBestMoveToFood(currentGame.You.Head, currentGame.Board, currentGame.You, &gameState)
+	fmt.Println("my tail", gameState.Tail)
+	nextMove := ""
+	nextMove = GetBestMoveToFood(currentGame.You.Head, currentGame.Board, currentGame.You, &gameState, false)
 
+	if nextMove == "nopath" {
+		gameState.FoodTarget = gameState.Tail 
+		nextMove = GetBestMoveToFood(currentGame.You.Head, currentGame.Board, currentGame.You, &gameState, true)
+	}
 	var move Move
 
 	move.Move = nextMove
